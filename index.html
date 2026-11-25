@@ -51,6 +51,9 @@ input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid 
 
 <div class="card"><h2>Entradas do mês</h2><div id="il"></div>
 <div class="f"><input type="text" id="in" placeholder="Origem (ex.: salário)"><input type="number" id="iv" placeholder="Valor" step="0.01" inputmode="decimal"><label><input type="checkbox" id="if" checked> Fixa</label><button class="p" id="ia">Adicionar</button></div></div>
+<div class="card"><h2>Dados salvos no aparelho</h2>
+<p class="em" style="margin-top:0">Tudo fica só neste aparelho. Apagar remove todos os meses, contas e entradas, e não dá para desfazer.</p>
+<div class="f" style="margin-top:0"><button id="cl" style="color:var(--bad);border-color:var(--bad)">🗑️ Limpar dados salvos</button><span id="cc" style="display:none;gap:6px;align-items:center"><span style="font-size:14px">Apagar tudo mesmo?</span> <button id="cy" style="background:var(--bad);border-color:var(--bad);color:#fff">Sim, apagar</button> <button id="cn">Cancelar</button></span></div></div>
 <p class="em">Itens marcados como “fixa” são copiados automaticamente para o mês seguinte (as contas voltam como não pagas). Os dados ficam salvos neste navegador.</p>
 </div>
 <script>
@@ -126,6 +129,9 @@ $('ia').onclick=()=>{
 };
 $('pv').onclick=()=>{cur=shift(cur,-1);render()};
 $('nx').onclick=()=>{cur=shift(cur,1);render()};
+$('cl').onclick=()=>{$('cl').style.display='none';$('cc').style.display='inline-flex'};
+$('cn').onclick=()=>{$('cc').style.display='none';$('cl').style.display=''};
+$('cy').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}S={months:{}};cur=nk(now);$('cc').style.display='none';$('cl').style.display='';render();window.scrollTo(0,0)};
 render();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script></body></html>
