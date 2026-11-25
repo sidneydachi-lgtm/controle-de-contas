@@ -40,8 +40,7 @@ input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid 
 .f label{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--mu)}
 .em{color:var(--mu);font-size:14px;padding:6px 0}
 </style></head><body><div class="w">
-<h1>💰 Controle de Contas <button id="sy" style="float:right;font-size:13px;padding:4px 10px"></button></h1>
-<div class="card" id="sp" style="display:none"><h2>Backup na planilha do Google</h2><div class="f" style="margin-top:0"><input type="text" id="su" placeholder="Endereço do script (https://script.google.com/...)" style="flex:1 1 100%"><input type="text" id="ss" placeholder="Senha do script" style="flex:1 1 140px"><button class="p" id="sv">Salvar e sincronizar</button><button id="sx">Desligar</button></div><p class="em" id="sm"></p></div>
+<h1>💰 Controle de Contas</h1>
 <div class="nav"><button id="pv">‹</button><b id="ml"></b><button id="nx">›</button></div>
 <div id="ban"></div>
 <div class="bar"><i id="pb"></i></div>
@@ -57,7 +56,7 @@ input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid 
 <script>
 const KEY='contas-v1';let S={months:{}};
 try{S=JSON.parse(localStorage.getItem(KEY))||S}catch(e){}
-const save=(local)=>{if(!local)S.updatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(!local)pushSoon()};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const brl=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -73,7 +72,7 @@ function M(k){
     if(prev){const p=S.months[prev];
       m.bills=p.bills.filter(b=>b.fixa).map(b=>({...b,id:uid(),paid:false}));
       m.income=p.income.filter(i=>i.fixa).map(i=>({...i,id:uid()}));}
-    S.months[k]=m;save(true);
+    S.months[k]=m;save();
   }
   return S.months[k];
 }
@@ -127,26 +126,6 @@ $('ia').onclick=()=>{
 };
 $('pv').onclick=()=>{cur=shift(cur,-1);render()};
 $('nx').onclick=()=>{cur=shift(cur,1);render()};
-const CFG='contas-sync';const APP='controle-de-contas';
-function cfg(){try{return JSON.parse(localStorage.getItem(CFG))||{}}catch(e){return{}}}
-let st='off',tm=null;
-function badge(){const b=$('sy');const t={off:'☁️ Backup desligado',ok:'☁️ Sincronizado',run:'☁️ Sincronizando…',err:'⚠️ Sem sincronizar'};b.textContent=t[st];$('sm').textContent=st==='err'?'Não foi possível falar com a planilha. Os dados continuam salvos no aparelho.':(st==='ok'?'Tudo salvo na planilha.':'')}
-async function pull(){const c=cfg();if(!c.url)return;st='run';badge();
-  try{const r=await fetch(c.url+'?app='+APP+'&secret='+encodeURIComponent(c.secret||''));const j=await r.json();
-    if(!j.ok)throw 0;
-    if(j.data&&(j.data.updatedAt||0)>(S.updatedAt||0)){S=j.data;if(!S.months)S.months={};save(true);render()}
-    else if((S.updatedAt||0)>(j.updatedAt||0)){await push()}
-    st='ok'}catch(e){st='err'}badge()}
-async function push(){const c=cfg();if(!c.url)return;st='run';badge();
-  try{const r=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({app:APP,secret:c.secret||'',data:S})});const j=await r.json();st=j.ok?'ok':'err'}catch(e){st='err'}badge()}
-function pushSoon(){if(!cfg().url)return;clearTimeout(tm);tm=setTimeout(push,1500)}
-$('sy').onclick=()=>{const p=$('sp');p.style.display=p.style.display==='none'?'block':'none';const c=cfg();$('su').value=c.url||'';$('ss').value=c.secret||''};
-$('sv').onclick=()=>{const u=$('su').value.trim();if(!/^https:\/\/script\.google\.com\//.test(u)){$('sm').textContent='Cole o endereço que começa com https://script.google.com/';return}
-  try{localStorage.setItem(CFG,JSON.stringify({url:u,secret:$('ss').value.trim()}))}catch(e){}
-  if(!S.updatedAt&&Object.values(S.months).some(m=>m.bills.length||m.income.length))S.updatedAt=Date.now();save(true);pull()};
-$('sx').onclick=()=>{try{localStorage.removeItem(CFG)}catch(e){}st='off';$('su').value=$('ss').value='';badge()};
-st=cfg().url?'run':'off';badge();pull();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
 render();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script></body></html>

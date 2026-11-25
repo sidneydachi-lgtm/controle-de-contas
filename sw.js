@@ -1,5 +1,5 @@
 // Controle de Contas — service worker (rede primeiro, cache como reserva offline)
-const V = "controle-contas-v2";
+const V = "controle-contas-v1";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
